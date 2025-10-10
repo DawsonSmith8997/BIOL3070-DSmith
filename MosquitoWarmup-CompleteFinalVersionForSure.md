@@ -1,0 +1,470 @@
+Warm-up mini-Report: Mosquito Blood Hosts in Salt Lake City, Utah
+================
+Dawson Smith
+2025-10-10
+
+- [Abstract](#abstract)
+- [Background](#background)
+- [Primary Study Question](#primary-study-question)
+- [Secondary Study Questions](#secondary-study-questions)
+- [Hypothesis](#hypothesis)
+- [Prediction](#prediction)
+- [Methods](#methods)
+  - [First Analysis](#first-analysis)
+  - [Code For First Analysis](#code-for-first-analysis)
+  - [Code for Second Analysis](#code-for-second-analysis)
+  - [GLM: Generalized Linear Modeling: Does house finch have an effect
+    by location positive +/- (binary)? by location positivity
+    rate?](#glm-generalized-linear-modeling-does-house-finch-have-an-effect-by-location-positive---binary-by-location-positivity-rate)
+  - [Code for House Finch GLM:](#code-for-house-finch-glm)
+- [Results](#results)
+- [Discussion](#discussion)
+- [Conclusion](#conclusion)
+- [References](#references)
+
+# Abstract
+
+West Nile virus (WNV) is maintained in a bird–mosquito transmission
+cycle, with certain bird species acting as amplifying hosts. To
+investigate which species play this role in Salt Lake City, Utah,
+mosquitoes were collected from gravid and other trap types, and
+bloodmeal DNA was analyzed using PCR and BLAST to identify avian hosts.
+Statistical analyses and graphs were used to compare feeding frequencies
+among bird species and to examine how long WNV can persist in avian
+hosts. Our results showed that mosquitoes frequently fed on house
+finches (Haemorhous mexicanus) and that these locations corresponded
+with higher WNV infection rates in mosquito pools. Generalized linear
+models confirmed that house finch bloodmeal frequency was a
+statistically significant predictor of WNV presence and infection rate
+(p \< 0.05). These findings support the hypothesis that house finches
+act as important amplifying hosts of WNV in urban areas of Salt Lake
+City.
+
+# Background
+
+West Nile virus (WNV) is a mosquito-borne flavivirus maintained
+primarily through transmission between birds and Culex mosquitoes.
+Unlike other North American arboviruses such as St. Louis encephalitis
+virus (SLEV), the strain of WNV introduced in 1999 caused unusually high
+bird mortality and even direct bird-to-bird transmission, especially
+among American crows (Corvus brachyrhynchos) (McLean et al., 2001).
+Because bird species differ in how long they remain infectious, only
+some serve as effective amplifying hosts that sustain transmission.
+Identifying which birds mosquitoes feed on helps reveal these key hosts.
+Experimental infections show that house finches (Haemorhous mexicanus)
+and house sparrows (Passer domesticus) maintain detectable viremia for
+4–6 days (Komar et al., 2003), long enough to infect multiple
+mosquitoes. Combined with their abundance in urban areas, these traits
+make house finches strong candidates as WNV amplifying hosts in Salt
+Lake City.
+
+``` r
+# Manually transcribe duration (mean, lo, hi) from the last table column
+duration <- data.frame(
+  Bird = c("Canada Goose","Mallard", 
+           "American Kestrel","Northern Bobwhite",
+           "Japanese Quail","Ring-necked Pheasant",
+           "American Coot","Killdeer",
+           "Ring-billed Gull","Mourning Dove",
+           "Rock Dove","Monk Parakeet",
+           "Budgerigar","Great Horned Owl",
+           "Northern Flicker","Blue Jay",
+           "Black-billed Magpie","American Crow",
+           "Fish Crow","American Robin",
+           "European Starling","Red-winged Blackbird",
+           "Common Grackle","House Finch","House Sparrow"),
+  mean = c(4.0,4.0,4.5,4.0,1.3,3.7,4.0,4.5,5.5,3.7,3.2,2.7,1.7,6.0,4.0,
+           4.0,5.0,3.8,5.0,4.5,3.2,3.0,3.3,6.0,4.5),
+  lo   = c(3,4,4,3,0,3,4,4,4,3,3,1,0,6,3,
+           3,5,3,4,4,3,3,3,5,2),
+  hi   = c(5,4,5,5,4,4,4,5,7,4,4,4,4,6,5,
+           5,5,5,7,5,4,3,4,7,6)
+)
+
+# Choose some colors
+cols <- c(rainbow(30)[c(10:29,1:5)])  # rainbow colors
+
+# horizontal barplot
+par(mar=c(5,12,2,2))  # wider left margin for names
+bp <- barplot(duration$mean, horiz=TRUE, names.arg=duration$Bird,
+              las=1, col=cols, xlab="Days of detectable viremia", xlim=c(0,7))
+
+# add error bars
+arrows(duration$lo, bp, duration$hi, bp,
+       angle=90, code=3, length=0.05, col="black", xpd=TRUE)
+```
+
+<img src="MosquitoWarmup-CompleteFinalVersionForSure_files/figure-gfm/viremia-1.png" style="display: block; margin: auto auto auto 0;" />
+
+# Primary Study Question
+
+Which bird species act as important amplifying hosts of West Nile virus
+in Salt Lake City, Utah?
+
+# Secondary Study Questions
+
+Future research could build on this study by exploring how mosquito
+feeding patterns influence West Nile virus (WNV) transmission risk
+across Salt Lake City. Specifically, examining whether the frequency of
+mosquito bloodmeals from house finches predicts local WNV infection
+rates could help clarify the strength of this host–virus relationship.
+Additionally, comparing spatial hotspots of mosquito feeding activity
+with WNV infection hotspots would provide deeper insight into how
+bird–mosquito interactions shape the geographic distribution of the
+virus in urban environments.
+
+# Hypothesis
+
+We hypothesized that house finches (Haemorhous mexicanus) serve as key
+amplifying hosts of WNV in Salt Lake City.
+
+# Prediction
+
+If house finches are important amplifying hosts, mosquito trap locations
+where mosquitoes have fed on house finches will also exhibit higher
+WNV-positive pool rates.
+
+# Methods
+
+Mosquitoes were collected from multiple trap sites across Salt Lake City
+using gravid and CO₂-baited traps. Engorged females were dissected, and
+bloodmeal DNA was extracted. Host species were identified via PCR
+amplification and Sanger sequencing of the cytochrome-b gene followed by
+BLAST comparison to avian reference sequences.
+
+Mosquito pools from each site were tested for WNV by RT-PCR, and results
+were summarized as (a) binary presence/absence and (b) proportional
+infection rate (loc_rate). Statistical analyses were performed in R,
+including visualization of host feeding patterns and generalized linear
+models (GLMs) relating house finch bloodmeal counts to WNV detection.
+
+## First Analysis
+
+## Code For First Analysis
+
+Horizontal plots:
+
+``` r
+## import counts_matrix: data.frame with column 'loc_positives' (0/1) and host columns 'host_*'
+counts_matrix <- read.csv("./bloodmeal_plusWNV_for_BIOL3070.csv")
+
+## 1) Identify host columns
+host_cols <- grep("^host_", names(counts_matrix), value = TRUE)
+
+if (length(host_cols) == 0) {
+  stop("No columns matching '^host_' were found in counts_matrix.")
+}
+
+## 2) Ensure loc_positives is present and has both levels 0 and 1 where possible
+counts_matrix$loc_positives <- factor(counts_matrix$loc_positives, levels = c(0, 1))
+
+## 3) Aggregate host counts by loc_positives
+agg <- stats::aggregate(
+  counts_matrix[, host_cols, drop = FALSE],
+  by = list(loc_positives = counts_matrix$loc_positives),
+  FUN = function(x) sum(as.numeric(x), na.rm = TRUE)
+)
+
+## make sure both rows exist; if one is missing, add a zero row
+need_levels <- setdiff(levels(counts_matrix$loc_positives), as.character(agg$loc_positives))
+if (length(need_levels)) {
+  zero_row <- as.list(rep(0, length(host_cols)))
+  names(zero_row) <- host_cols
+  for (lv in need_levels) {
+    agg <- rbind(agg, c(lv, zero_row))
+  }
+  ## restore proper type
+  agg$loc_positives <- factor(agg$loc_positives, levels = c("0","1"))
+  ## coerce numeric host cols (they may have become character after rbind)
+  for (hc in host_cols) agg[[hc]] <- as.numeric(agg[[hc]])
+  agg <- agg[order(agg$loc_positives), , drop = FALSE]
+}
+
+## 4) Decide species order (overall abundance, descending)
+overall <- colSums(agg[, host_cols, drop = FALSE], na.rm = TRUE)
+host_order <- names(sort(overall, decreasing = TRUE))
+species_labels <- rev(sub("^host_", "", host_order))  # nicer labels
+
+## 5) Build count vectors for each panel in the SAME order
+counts0 <- rev(as.numeric(agg[agg$loc_positives == 0, host_order, drop = TRUE]))
+counts1 <- rev(as.numeric(agg[agg$loc_positives == 1, host_order, drop = TRUE]))
+
+## 6) Colors: reuse your existing 'cols' if it exists and is long enough; otherwise generate
+if (exists("cols") && length(cols) >= length(host_order)) {
+  species_colors <- setNames(cols[seq_along(host_order)], species_labels)
+} else {
+  species_colors <- setNames(rainbow(length(host_order) + 10)[seq_along(host_order)], species_labels)
+}
+
+## 7) Shared x-limit for comparability
+xmax <- max(c(counts0, counts1), na.rm = TRUE)
+xmax <- if (is.finite(xmax)) xmax else 1
+xlim_use <- c(0, xmax * 1.08)
+
+## 8) Plot: two horizontal barplots with identical order and colors
+op <- par(mfrow = c(1, 2),
+          mar = c(4, 12, 3, 2),  # big left margin for species names
+          xaxs = "i")           # a bit tighter axis padding
+
+## Panel A: No WNV detected (loc_positives = 0)
+barplot(height = counts0,
+        names.arg = species_labels, 
+        cex.names = .5,
+        cex.axis = .5,
+        col = rev(unname(species_colors[species_labels])),
+        horiz = TRUE,
+        las = 1,
+        xlab = "Bloodmeal counts",
+        main = "Locations WNV (-)",
+        xlim = xlim_use)
+
+## Panel B: WNV detected (loc_positives = 1)
+barplot(height = counts1,
+        names.arg = species_labels, 
+        cex.names = .5,
+        cex.axis = .5,
+        col = rev(unname(species_colors[species_labels])),
+        horiz = TRUE,
+        las = 1,
+        xlab = "Bloodmeal counts",
+        main = "Locations WNV (+)",
+        xlim = xlim_use)
+```
+
+<img src="MosquitoWarmup-CompleteFinalVersionForSure_files/figure-gfm/horiz-plot-1.png" style="display: block; margin: auto auto auto 0;" />
+
+``` r
+par(op)
+
+## Keep the colors mapping for reuse elsewhere
+host_species_colors <- species_colors
+```
+
+## Code for Second Analysis
+
+``` r
+library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
+library(tidyr)
+library(ggplot2)
+
+hm <- counts_matrix %>%
+  filter(!is.na(long), !is.na(lat)) %>%
+  transmute(
+    long, lat,
+    `WNV-positive pools (rate)` = loc_rate,
+    `House finch blood meals`   = host_House_finch
+  ) %>%
+  pivot_longer(-c(long, lat), names_to = "metric", values_to = "value") %>%
+  mutate(value = ifelse(is.na(value), 0, value))
+
+# plot extent (a small pad around data)
+xpad <- diff(range(hm$long))*0.05
+ypad <- diff(range(hm$lat))*0.05
+xlim <- range(hm$long) + c(-xpad, xpad)
+ylim <- range(hm$lat) + c(-ypad, ypad)
+
+# The borders function was calling annotate and it was causing an error. I replaced it with the geom_polgon to avoid calling annotate.
+
+utah_map <- map_data("state", region = "utah")
+
+ggplot(hm, aes(long, lat)) +
+  geom_polygon(data = utah_map, aes(x = long, y = lat, group = group),
+               fill = NA, color = "grey75", inherit.aes = FALSE) +
+  # KDE hotspot, weighted by value
+  stat_density_2d_filled(
+    aes(weight = value, fill = after_stat(level)),
+    contour_var = "ndensity", geom = "polygon",
+    bins = 12, alpha = 0.9, adjust = 0.8
+  ) +
+  # optional faint contours
+  stat_density_2d(
+    aes(weight = value, color = after_stat(level)),
+    contour_var = "ndensity", bins = 12, linewidth = 0.15, show.legend = FALSE
+  ) +
+  # show sites lightly on top
+  geom_point(aes(size = pmax(value, 0.0001)), alpha = 0.5, shape = 21, stroke = 0.2,
+             fill = NA, color = "grey30", show.legend = FALSE) +
+  coord_quickmap(xlim = xlim, ylim = ylim) +
+  facet_wrap(~ metric, nrow = 1) +
+  scale_fill_viridis_d(option = "C", direction = -1, name = "Hotspot") +
+  guides(color = "none") +
+  theme_minimal() +
+  labs(x = NULL, y = NULL)
+```
+
+![](MosquitoWarmup-CompleteFinalVersionForSure_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+## GLM: Generalized Linear Modeling: Does house finch have an effect by location positive +/- (binary)? by location positivity rate?
+
+## Code for House Finch GLM:
+
+``` r
+#glm with house finch alone against binary +/_
+glm1 <- glm(loc_positives ~ host_House_finch,
+            data = counts_matrix,
+            family = binomial)
+summary(glm1)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = loc_positives ~ host_House_finch, family = binomial, 
+    ##     data = counts_matrix)
+    ## 
+    ## Coefficients:
+    ##                  Estimate Std. Error z value Pr(>|z|)  
+    ## (Intercept)       -0.1709     0.1053  -1.622   0.1047  
+    ## host_House_finch   0.3468     0.1586   2.187   0.0287 *
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 546.67  on 394  degrees of freedom
+    ## Residual deviance: 539.69  on 393  degrees of freedom
+    ## AIC: 543.69
+    ## 
+    ## Number of Fisher Scoring iterations: 4
+
+``` r
+#glm with house-finch alone against positivity rate
+glm2 <- glm(loc_rate ~ host_House_finch,
+            data = counts_matrix)
+summary(glm2)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = loc_rate ~ host_House_finch, data = counts_matrix)
+    ## 
+    ## Coefficients:
+    ##                  Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)      0.054861   0.006755   8.122 6.07e-15 ***
+    ## host_House_finch 0.027479   0.006662   4.125 4.54e-05 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for gaussian family taken to be 0.01689032)
+    ## 
+    ##     Null deviance: 6.8915  on 392  degrees of freedom
+    ## Residual deviance: 6.6041  on 391  degrees of freedom
+    ##   (2 observations deleted due to missingness)
+    ## AIC: -484.56
+    ## 
+    ## Number of Fisher Scoring iterations: 2
+
+# Results
+
+Mosquito bloodmeal analysis revealed that mosquitoes fed on a variety of
+bird species across Salt Lake City, but house finches (Haemorhous
+mexicanus) and house sparrows (Passer domesticus) were the most
+frequently identified hosts. When locations were grouped by WNV status,
+sites that tested positive for the virus tended to have a greater
+proportion of bloodmeals from these common urban species, particularly
+house finches (Figure 1).
+
+Spatial hotspot analysis further supported this relationship. Kernel
+density estimation (KDE) maps showed that areas with a high frequency of
+house finch bloodmeals overlapped geographically with regions of
+elevated WNV infection rates in mosquito pools (Figure 2). These
+hotspots were concentrated in central and western parts of Salt Lake
+City, suggesting a spatial link between host feeding activity and local
+virus amplification.
+
+Statistical modeling confirmed these visual patterns. A logistic
+regression (GLM with binomial error) indicated that the number of house
+finch bloodmeals was a significant positive predictor of WNV presence at
+a site (Estimate = 0.347, p = 0.0287). Similarly, a linear model using
+infection rate as the response variable showed that house finch feeding
+frequency was strongly associated with higher WNV positivity rates
+across sites (Estimate = 0.0275, p \< 0.001). Together, these results
+indicate that mosquito feeding on house finches is significantly
+correlated with WNV occurrence and intensity across Salt Lake City.
+
+# Discussion
+
+Our findings provide strong evidence that house finches (Haemorhous
+mexicanus) play an important role in the amplification of West Nile
+virus (WNV) within urban areas of Salt Lake City. The patterns observed
+across our analyses were consistent with our hypothesis: mosquitoes that
+fed more frequently on house finches were more likely to be collected
+from sites where WNV was detected. Both the visual data and the
+statistical models point toward a positive association between house
+finch bloodmeal frequency and WNV presence in mosquito pools.
+
+The bar plot comparing bird species composition between WNV-positive and
+WNV-negative sites revealed that house finches were one of the most
+common hosts overall, and they were particularly abundant at infected
+locations. The spatial hotspot map further strengthened this connection
+by showing overlapping high-density regions of house finch feedings and
+WNV infection rates. These overlapping hotspots suggest that mosquitoes
+feeding on house finches may be contributing to localized virus
+amplification. The GLM analyses supported these visual trends
+statistically: both the logistic model and the linear model showed
+significant positive effects of house finch feeding on WNV presence and
+infection rate, confirming that this relationship was unlikely to be due
+to random variation.
+
+However, some limitations should be considered when interpreting these
+results. The bloodmeal dataset represents a snapshot in time and may not
+capture seasonal variation in mosquito feeding behavior or infection
+dynamics. The hotspot maps, while visually informative, are based on
+smoothed density estimates and may overemphasize localized clusters
+where sampling effort was higher. In addition, PCR-based host
+identification can sometimes fail to detect mixed or degraded
+bloodmeals, potentially biasing the results toward more common species
+with better DNA recovery. Statistical models also rely on the assumption
+that mosquito collections and infection testing were consistent across
+sites, which may not always hold true in field studies.
+
+Despite these limitations, the consistency between the graphical
+patterns and the statistical models adds confidence to our conclusion.
+The overlap of house finch feeding hotspots with WNV-positive areas,
+combined with the significant regression results, provides strong
+ecological evidence that house finches act as amplifying hosts in this
+system. Future studies incorporating larger sample sizes, temporal
+sampling, and host abundance data could further clarify how host
+community composition influences WNV transmission risk across urban
+landscapes.
+
+# Conclusion
+
+Our results show a clear link between mosquito feeding patterns and West
+Nile virus (WNV) distribution in Salt Lake City. Mosquitoes that fed on
+house finches (Haemorhous mexicanus) were significantly more likely to
+come from WNV-positive sites, and hotspot mapping showed strong spatial
+overlap between house finch feeding areas and WNV infections. These
+findings support the hypothesis that house finches act as important
+amplifying hosts of WNV in urban environments. Because of their
+abundance and close association with humans, house finches may play a
+key role in sustaining local WNV transmission.
+
+# References
+
+1.  ChatGPT. (2025). *OpenAI, version Jan 2025*. Used to correct syntax
+    and plotting errors. Accessed 2025-10-10.
+
+2.  Komar, N., Langevin, S., Hinten, S., Nemeth, N., Edwards, E.,
+    Hettler, D., Davis, B., Bowen, R., & Bunning, M. (2003).
+    Experimental infection of North American birds with the New York
+    1999 strain of West Nile virus. *Emerging Infectious Diseases,
+    9*(3), 311–322. <https://doi.org/10.3201/eid0903.020628>
+
+3.  McLean, R. G., Ubico, S. R., Docherty, D. E., Hansen, W. R., Sileo,
+    L., & McNamara, T. S. (2001). West Nile virus transmission and
+    ecology in birds. *Annals of the New York Academy of Sciences,
+    951*(1), 54–57. <https://doi.org/10.1111/j.1749-6632.2001.tb02684.x>
