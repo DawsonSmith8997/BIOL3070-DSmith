@@ -31,7 +31,7 @@ Variation at rs12948783 contributes to interindividual differences in opioid res
 Prediction:
 Individuals with the GG genotype will show higher normalized pain relief values than GA or AA individuals, and carriers of at least one G allele will have higher mean pain relief than non-carriers.
 
-#METHODS
+# METHODS
 
 Dataset and Design:
 Simulated patient-level data modeled after Galvan et al. (2011) were used to approximate the distribution of genotypes (AA, GA, GG), carrier status (G-carrier vs. non-carrier), and normalized pain relief scores. No real patient data were used.

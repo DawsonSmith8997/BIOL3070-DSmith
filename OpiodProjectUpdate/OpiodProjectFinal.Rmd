@@ -12,21 +12,47 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 # ABSTRACT
 
-Opioid analgesics remain the cornerstone of cancer pain management, yet patient responses vary widely. Previous genome-wide analyses have suggested that multiple genetic loci, including rs12948783 near the RHBDF2 gene, are associated with differential opioid efficacy. This study aimed to replicate and explore the association between rs12948783 genotype and normalized pain relief following opioid treatment using simulated data modeled after Galvan et al. (2011). Through one-way and two-way ANOVAs and graphical analysis, we found that individuals with the GG genotype exhibited significantly greater normalized pain relief compared to GA and AA genotypes (p < 2.2 × 10⁻¹⁶). Furthermore, carriers of the G allele demonstrated enhanced analgesic efficacy, suggesting a dominant effect of the G variant. These findings support the hypothesis that genetic variation contributes significantly to interindividual differences in opioid response, reinforcing the potential for personalized pain management based on pharmacogenetic profiling.
+Opioid analgesics remain the cornerstone of cancer pain management, yet patient responses vary widely. Previous genome-wide analyses have suggested that multiple genetic loci, including rs12948783 near the RHBDF2 gene, are associated with differential opioid response (Galvan et al., 2011). This study aimed to replicate and explore the association between rs12948783 genotype and normalized pain relief following opioid treatment using simulated data modeled after Galvan et al. (2011). Through one-way and two-way ANOVAs and graphical analysis, we found that individuals with the GG genotype demonstrated significantly greater normalized pain relief compared to GA and AA genotypes (p < 2.2 × 10⁻¹⁶). These findings support the hypothesis that genetic variation contributes to interindividual differences in opioid response, reinforcing the potential for personalized pain management based on pharmacogenetic profiling.
 
 # BACKGROUND
 
-Effective pain control remains a major challenge in cancer care, as patients often show wide variability in their response to opioid therapy. Genetic factors are increasingly recognized as key contributors to this variability. In a landmark genome-wide study, Galvan et al. (2011) identified multiple genetic loci influencing individual differences in opioid dose requirements among cancer patients. Their work demonstrated that polymorphisms in genes related to opioid metabolism, transport, and receptor signaling can significantly affect both analgesic efficacy and side-effect profiles.
+Effective pain control remains a major challenge in cancer care, as patients often show wide variability in their response to opioid therapy. Genetic factors are increasingly recognized as contributors to this variability. In a landmark genome-wide study, Galvan et al. (2011) identified multiple genetic loci influencing individual differences in opioid dose requirements among cancer patients. Their work demonstrated that polymorphisms in genes related to opioid metabolism, transport, and receptor signaling can influence both analgesic response and side-effect profiles.
 
-Building upon these findings, the present study focuses on the single nucleotide polymorphism rs12948783, located near the RHBDF2 gene, which has been previously implicated in opioid response variability. By investigating how rs12948783 genotype and carrier status influence normalized pain relief, this study aims to provide further insight into the genetic determinants of opioid sensitivity and the potential application of pharmacogenetics in personalized cancer pain management.
+Building upon these findings, the present study focuses on the single nucleotide polymorphism rs12948783, located near the RHBDF2 gene, which has been previously implicated in variation in opioid response (Galvan et al., 2011). By investigating how rs12948783 genotype and carrier status are associated with normalized pain relief, this study aims to provide further insight into the genetic contributions to opioid sensitivity and the potential application of pharmacogenetics in personalized cancer pain management.
 
 # RESEARCH QUESTION & HYPOTHESIS
 
 Research Question:
-Does genetic variation at the rs12948783 locus influence the degree of normalized pain relief following opioid administration, and does carrier status further modify this effect?
+Does genetic variation at the rs12948783 locus correlate with differences in normalized pain relief following opioid administration, and does carrier status further refine this relationship?
 
 Hypothesis:
-We hypothesize that individuals with the GG genotype at rs12948783 will exhibit significantly greater normalized pain relief following opioid treatment compared to GA and AA genotypes, with carrier status further amplifying this difference.
+Variation at rs12948783 contributes to interindividual differences in opioid response.
+
+Prediction:
+Individuals with the GG genotype will show higher normalized pain relief values than GA or AA individuals, and carriers of at least one G allele will have higher mean pain relief than non-carriers.
+
+#METHODS
+
+Dataset and Design:
+Simulated patient-level data modeled after Galvan et al. (2011) were used to approximate the distribution of genotypes (AA, GA, GG), carrier status (G-carrier vs. non-carrier), and normalized pain relief scores. No real patient data were used.
+
+Variables:
+
+Genotype: Categorical factor with three levels (AA, GA, GG).
+
+Carrier Status: Binary factor (G-carrier vs. non-carrier).
+
+Normalized Pain Relief: Continuous outcome variable representing analgesic response.
+
+Analyses:
+
+One-way ANOVA was conducted to assess the association between rs12948783 genotype and normalized pain relief.
+
+Post-hoc Tukey tests evaluated pairwise differences.
+
+Two-way ANOVA and grouped bar plots explored potential interaction patterns between genotype and carrier status.
+
+All analyses and visualizations were performed using R (version X.X) and packages including ggplot2, dplyr, readr, and ggpubr.
 
 # RESULTS
 
@@ -76,7 +102,7 @@ ggboxplot(data, x = "genotype", y = "norm_pain_relief",
 ```
 
 ### GRAPH 1 ANALYSIS
-Analysis of normalized pain relief by genotype revealed a significant effect of rs12948783 variation on opioid response (p < 2.2 × 10⁻¹⁶, one-way ANOVA). Individuals with the GG genotype demonstrated the highest median pain relief, followed by GA, while AA individuals showed the lowest overall analgesic response. These results indicate that the presence of the G allele is associated with enhanced opioid efficacy.
+Analysis of normalized pain relief by genotype revealed a statistically significant association between rs12948783 variation and opioid response (p < 2.2 × 10⁻¹⁶, one-way ANOVA). Individuals with the GG genotype displayed the highest median response, followed by GA and then AA. These patterns indicate that the G allele is associated with higher pain relief response, although causation cannot be inferred from ANOVA alone.
 
 ## Pain Relief Efficacy Analysis 2
 

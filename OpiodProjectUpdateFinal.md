@@ -235,16 +235,16 @@ ggboxplot(data, x = "genotype", y = "norm_pain_relief",
   theme_minimal()
 ```
 
-![](OpiodProjectUpdate_files/figure-gfm/pain_relief_analysis-1.png)<!-- -->
+![](OpiodProjectUpdateFinal_files/figure-gfm/pain_relief_analysis-1.png)<!-- -->
 
 ### GRAPH 1 ANALYSIS
 
-Analysis of normalized pain relief by genotype revealed a significant
-effect of rs12948783 variation on opioid response (p \< 2.2 × 10⁻¹⁶,
-one-way ANOVA). Individuals with the GG genotype demonstrated the
-highest median pain relief, followed by GA, while AA individuals showed
-the lowest overall analgesic response. These results indicate that the
-presence of the G allele is associated with enhanced opioid efficacy.
+Analysis of normalized pain relief by genotype revealed a statistically
+significant association between rs12948783 variation and opioid response
+(p \< 2.2 × 10⁻¹⁶, one-way ANOVA). Individuals with the GG genotype
+displayed the highest median response, followed by GA and then AA. These
+patterns indicate that the G allele is associated with higher pain
+relief response, although causation cannot be inferred from ANOVA alone.
 
 ## Pain Relief Efficacy Analysis 2
 
@@ -272,7 +272,7 @@ data %>%
   theme_minimal()
 ```
 
-![](OpiodProjectUpdate_files/figure-gfm/pain_relief_plot-1.png)<!-- -->
+![](OpiodProjectUpdateFinal_files/figure-gfm/pain_relief_plot-1.png)<!-- -->
 
 ### GRAPH 2 ANALYSIS
 
